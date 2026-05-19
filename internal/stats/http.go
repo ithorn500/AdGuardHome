@@ -63,6 +63,20 @@ func (s *StatsCtx) handleStats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	l := s.logger
 
+	resp, err := s.Snapshot(r.URL.Query().Get(queryKeyRecent))
+	if err != nil {
+		aghhttp.ErrorAndLog(ctx, l, r, w, http.StatusBadRequest, "%s", err)
+
+		return
+	}
+
+	l.DebugContext(ctx, "prepared data", "elapsed", time.Since(start))
+
+	aghhttp.WriteJSONResponseOK(ctx, l, w, r, resp)
+}
+
+// Snapshot returns the current statistics response for recent.
+func (s *StatsCtx) Snapshot(recent string) (resp *StatsResp, err error) {
 	var limit time.Duration
 	func() {
 		s.confMu.RLock()
@@ -71,29 +85,20 @@ func (s *StatsCtx) handleStats(w http.ResponseWriter, r *http.Request) {
 		limit = s.limit
 	}()
 
-	recent := r.URL.Query().Get(queryKeyRecent)
-
-	limit, err := parseRecent(recent, limit)
+	limit, err = parseRecent(recent, limit)
 	if err != nil {
-		aghhttp.ErrorAndLog(ctx, l, r, w, http.StatusBadRequest, "%s", err)
-
-		return
+		return nil, err
 	}
 
-	resp, ok := s.getData(uint32(limit.Hours()))
-
-	l.DebugContext(ctx, "prepared data", "elapsed", time.Since(start))
-
+	ok := false
+	resp, ok = s.getData(uint32(limit.Hours()))
 	if !ok {
 		// Don't bring the message to the lower case since it's a part of UI
 		// text for the moment.
-		const msg = "Couldn't get statistics data"
-		aghhttp.ErrorAndLog(ctx, l, r, w, http.StatusInternalServerError, msg)
-
-		return
+		return nil, fmt.Errorf("Couldn't get statistics data")
 	}
 
-	aghhttp.WriteJSONResponseOK(ctx, l, w, r, resp)
+	return resp, nil
 }
 
 // parseRecent parses and validates the value of the recent URL parameter.  If

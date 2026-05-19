@@ -2,12 +2,14 @@ package home
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"net/netip"
+	"os"
 	"path"
 	"slices"
 	"strconv"
@@ -463,6 +465,12 @@ func (mw *authMiddlewareDefault) handlePublicAccess(
 	h http.Handler,
 	path string,
 ) (ok bool) {
+	if path == amberBusInvokePath && amberBusTokenAuthenticated(r) {
+		h.ServeHTTP(w, r)
+
+		return true
+	}
+
 	if isPublicResource(path) || mw.isDoHRoute(r) {
 		h.ServeHTTP(w, r)
 
@@ -476,6 +484,23 @@ func (mw *authMiddlewareDefault) handlePublicAccess(
 	}
 
 	return false
+}
+
+func amberBusTokenAuthenticated(r *http.Request) (ok bool) {
+	const envToken = "ADGUARDHOME_AMBER_BUS_TOKEN"
+
+	want := os.Getenv(envToken)
+	if want == "" {
+		return false
+	}
+
+	got := r.Header.Get("X-Amber-Bus-Token")
+	if got == "" {
+		auth := r.Header.Get("Authorization")
+		got, _ = strings.CutPrefix(auth, "Bearer ")
+	}
+
+	return subtle.ConstantTimeCompare([]byte(got), []byte(want)) == 1
 }
 
 // needsAuthentication returns true if there are stored web users and requests

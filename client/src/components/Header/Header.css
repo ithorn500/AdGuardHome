@@ -73,6 +73,44 @@
     height: 24px;
 }
 
+.amber-bus-mark {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    margin: 0 8px 0 4px;
+    padding: 0 7px 0 5px;
+    border: 1px solid rgba(222, 139, 31, 0.35);
+    border-radius: 4px;
+    color: #855800;
+    background: rgba(255, 191, 91, 0.14);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.amber-bus-mark__icon {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    fill: rgba(255, 171, 45, 0.2);
+    stroke: #d9831f;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+[data-theme='dark'] .amber-bus-mark {
+    border-color: rgba(255, 184, 77, 0.42);
+    color: #f5c26b;
+    background: rgba(255, 184, 77, 0.12);
+}
+
+[data-theme='dark'] .amber-bus-mark__icon {
+    stroke: #f3b64a;
+    fill: rgba(243, 182, 74, 0.18);
+}
+
 .nav-tabs .nav-item.show .nav-link {
     color: var(--green-74);
     background-color: #fff;
@@ -172,6 +210,17 @@
         height: 32px;
     }
 
+    .amber-bus-mark {
+        height: 26px;
+        margin-left: 6px;
+        font-size: 12px;
+    }
+
+    .amber-bus-mark__icon {
+        width: 16px;
+        height: 16px;
+    }
+
     .header__logout {
         width: 35px;
         height: 35px;
@@ -204,4 +253,20 @@
 .dns-status {
     padding: 0.35em 0.5em;
     line-height: 10px;
+}
+
+@media screen and (max-width: 420px) {
+    .amber-bus-mark__label {
+        display: none;
+    }
+
+    .amber-bus-mark {
+        width: 26px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .amber-bus-mark__icon {
+        margin-right: 0;
+    }
 }

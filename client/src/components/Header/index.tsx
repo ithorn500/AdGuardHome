@@ -48,6 +48,18 @@ const Header = () => {
                             <Link to="/" className="nav-link pl-0 pr-1">
                                 <Logo className="header-brand-img" />
                             </Link>
+                            <div className="amber-bus-mark" aria-label="Amber Bus connected" title="Amber Bus connected">
+                                <svg
+                                    className="amber-bus-mark__icon"
+                                    viewBox="0 0 24 24"
+                                    role="img"
+                                    aria-hidden="true"
+                                    focusable="false">
+                                    <path d="M12 3.4 18.6 7v7.8L12 20.6l-6.6-5.8V7L12 3.4z" />
+                                    <path d="M8.4 9.4h7.2M8.4 12h7.2M8.4 14.6h7.2" />
+                                </svg>
+                                <span className="amber-bus-mark__label">Amber Bus</span>
+                            </div>
                             {!processing && isCoreRunning && (
                                 <span className={badgeClass}>{t(protectionEnabled ? 'on' : 'off')}</span>
                             )}

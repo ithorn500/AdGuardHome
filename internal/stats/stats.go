@@ -91,6 +91,9 @@ type Interface interface {
 
 	io.Closer
 
+	// Snapshot returns the current statistics response for recent.
+	Snapshot(recent string) (resp *StatsResp, err error)
+
 	// Update collects the incoming statistics data.
 	Update(e *Entry)
 

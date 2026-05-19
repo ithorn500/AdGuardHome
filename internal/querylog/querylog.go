@@ -1,9 +1,11 @@
 package querylog
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
+	"net/url"
 	"path/filepath"
 	"sync"
 	"time"
@@ -31,6 +33,9 @@ type QueryLog interface {
 
 	// ShouldLog returns true if request for the host should be logged.
 	ShouldLog(host string, qType, qClass uint16, ids []string) bool
+
+	// Search returns query-log entries matching values.
+	Search(ctx context.Context, values url.Values) (resp any, err error)
 }
 
 // Config is the query log configuration structure.

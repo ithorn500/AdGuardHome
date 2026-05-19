@@ -103,6 +103,12 @@ func (mw *authMiddlewareGLiNet) Wrap(h http.Handler) (wrapped http.Handler) {
 		ctx := r.Context()
 
 		path := r.URL.Path
+		if path == amberBusInvokePath && amberBusTokenAuthenticated(r) {
+			h.ServeHTTP(w, r)
+
+			return
+		}
+
 		if isPublicResource(path) || mw.isDoHRoute(r) || mw.isAuthenticated(ctx, r) {
 			h.ServeHTTP(w, r)
 

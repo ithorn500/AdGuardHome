@@ -1,6 +1,7 @@
 package home
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/netip"
@@ -121,13 +122,20 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	l := web.logger
 
-	dnsAddrs, err := collectDNSAddresses(web.tlsManager)
+	resp, err := web.statusSnapshot(ctx)
 	if err != nil {
-		// Don't add a lot of formatting, since the error is already
-		// wrapped by collectDNSAddresses.
 		aghhttp.ErrorAndLog(ctx, l, r, w, http.StatusInternalServerError, "%s", err)
 
 		return
+	}
+
+	aghhttp.WriteJSONResponseOK(ctx, l, w, r, resp)
+}
+
+func (web *webAPI) statusSnapshot(ctx context.Context) (resp statusResponse, err error) {
+	dnsAddrs, err := collectDNSAddresses(web.tlsManager)
+	if err != nil {
+		return statusResponse{}, err
 	}
 
 	var (
@@ -141,7 +149,6 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 		protEnabled, protDisabledUntil = globalContext.dnsServer.UpdatedProtectionStatus(ctx)
 	}
 
-	var resp statusResponse
 	func() {
 		config.RLock()
 		defer config.RUnlock()
@@ -172,7 +179,7 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 		resp.IsDHCPAvailable = globalContext.dhcpServer != nil
 	}
 
-	aghhttp.WriteJSONResponseOK(ctx, l, w, r, resp)
+	return resp, nil
 }
 
 // registerControlHandlers sets up HTTP handlers for various control endpoints.
@@ -186,6 +193,7 @@ func (web *webAPI) registerControlHandlers() {
 	web.httpReg.Register(http.MethodPost, "/control/update", web.handleUpdate)
 
 	web.httpReg.Register(http.MethodGet, "/control/status", web.handleStatus)
+	web.registerAmberBusConnectorHandlers()
 	web.httpReg.Register(
 		http.MethodPost,
 		"/control/i18n/change_language",

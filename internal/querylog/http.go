@@ -79,11 +79,27 @@ func (l *queryLog) initWeb() {
 // handleQueryLog is the handler for the GET /control/querylog HTTP API.
 func (l *queryLog) handleQueryLog(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	params, err := l.parseSearchParams(ctx, r)
+	resp, err := l.Search(ctx, r.URL.Query())
 	if err != nil {
 		aghhttp.ErrorAndLog(ctx, l.logger, r, w, http.StatusBadRequest, "parsing params: %s", err)
 
 		return
+	}
+
+	aghhttp.WriteJSONResponseOK(ctx, l.logger, w, r, resp)
+}
+
+// Search returns query-log entries matching values.
+func (l *queryLog) Search(ctx context.Context, values url.Values) (resp any, err error) {
+	r := &http.Request{
+		URL: &url.URL{
+			RawQuery: values.Encode(),
+		},
+	}
+
+	params, err := l.parseSearchParams(ctx, r)
+	if err != nil {
+		return nil, err
 	}
 
 	var entries []*logEntry
@@ -95,9 +111,7 @@ func (l *queryLog) handleQueryLog(w http.ResponseWriter, r *http.Request) {
 		entries, oldest = l.search(ctx, params)
 	}()
 
-	resp := l.entriesToJSON(ctx, entries, oldest, l.anonymizer.Load())
-
-	aghhttp.WriteJSONResponseOK(ctx, l.logger, w, r, resp)
+	return l.entriesToJSON(ctx, entries, oldest, l.anonymizer.Load()), nil
 }
 
 // handleQueryLogClear is the handler for the POST /control/querylog/clear HTTP
