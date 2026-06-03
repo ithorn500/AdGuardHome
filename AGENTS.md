@@ -1,7 +1,38 @@
+# Measure Twice, Cut Once (Mandatory)
+
+This repo follows the cross-repo agent mandate: **measure twice, cut once**. Before editing, agents must do a read-only evidence pass, define the problem and affected paths, record the design and validation plan, then make one coherent change set. No panic patching, speculative micro-fixes, or isolated edits when behavior spans components.
+
 # Guidance for coding agents
 
-This root is the current AdGuardHome LXC runtime mount. It contains the active AdGuardHome binary,
-configuration, data, and upstream documentation. It is not currently a Go source checkout.
+This root is the current AdGuardHome fork workspace mounted at `/mnt/adguard`, with the LXC runtime
+payload preserved in place. It tracks `origin=https://github.com/ithorn500/AdGuardHome.git` and
+`upstream=https://github.com/AdguardTeam/AdGuardHome.git`.
+
+The cross-repo source of truth is `/opt/AIGateway/AGENTS.md`. This file is the AdGuardHome-local
+overlay for DNS/filtering fork and runtime payload rules.
+
+## ACSA Console Surface Mandate
+
+Every AdGuard/edge-network functionality designed or developed must have a live graphical surface in both the Amber Console Windows app and the Console web app on `console.amber.com`. Delivery evidence must include owner-backed state, activity, errors, lifecycle mode, and click-through detail. Text-only status boxes, raw JSON dumps, static mock panels, hidden flags, and fake counters do not count.
+
+## Amber Network Host/IP Reference
+
+Use DNS names for service operations and SSH commands; use IPs only for orientation, diagnostics,
+or DNS work.
+
+| Host / workspace | Address | Notes |
+| --- | --- | --- |
+| `gemma.amber.com` / `/opt/AIGateway` | `192.168.0.48` | Command Repo and Gemma Gateway appliance. |
+| `guardian.amber.com` / `/mnt/guardian` | `192.168.0.47` | Guardian control plane/runtime owner. |
+| `amber-bus.amber.com` / `/mnt/amber-bus` | `192.168.0.45` | Amber Bus owner host. |
+| `logger.amber.com` / `/mnt/logger` | `192.168.0.45` | Logger resolves to the Amber Bus host address. |
+| `adguard.amber.com` / `/mnt/adguard` | `192.168.0.4` | DNS/filtering perimeter. |
+| `pfsense.amber.com` / `/mnt/pfsense` | `192.168.0.5` | Firewall/router perimeter workspace. |
+| `actorr.amber.com` / `/mnt/actorr` | `192.168.0.49` | Actorr media actuator owner host. |
+| `homeassistant.amber.com` / `/mnt/homeassistant` | `192.168.0.164` | Live Home Assistant config/telemetry host. |
+| `homeassistant.local` | unresolved from AIGateway on 2026-05-24 | Prefer `homeassistant.amber.com` when resolution from AIGateway matters. |
+| `memorr.amber.com` / `/mnt/memorr/opt/memorr` | `192.168.0.46` | Memorr source workspace; broader `/mnt/memorr` is the host/runtime filesystem. |
+| `adserver.amber.com` | `192.168.0.51` | Windows AD DNS/DHCP authority, not a mounted repo owner. |
 
 ## Boundary
 
@@ -20,13 +51,30 @@ configuration, data, and upstream documentation. It is not currently a Go source
   smallest safe restart path.
 - Do not replace the `AdGuardHome` binary from this runtime mount as a side effect of documentation
   or connector planning work.
+- Treat `AdGuardHome`, `AdGuardHome.yaml`, `data/`, and backup/runtime payloads as live runtime
+  artifacts unless the user explicitly asks for runtime maintenance.
 
 ## Fork And Connector Policy
 
-- The source fork should be a separate git root/workspace when mounted, preferably with upstream
-  AdGuardHome kept trackable.
+- The Go source fork is present in this git root. Preserve upstream layout and keep fork changes
+  narrow.
 - Amber changes in the Go fork should stay narrow, ideally under `internal/amberbus/` or
   `internal/amberbusconnector/`.
 - The first connector slice is read-only: status, stats, query-log search, clients, filtering
   status, and security summary.
 - Guarded write functions require a separate explicit contract update and operator approval.
+
+## Mandatory Change Process
+
+For non-trivial work across AdGuardHome fork code, DNS/filtering behavior, connector contracts, runtime payloads, or Bus/Logger integration:
+
+1. Read-only evidence pass.
+2. Design record before editing.
+3. One coherent strategic change set.
+4. Validation pass covering success and failure.
+5. Go/no-go review.
+6. No panic patch rule.
+
+Task-specific change-process notes must identify affected runtime paths, source modules, APIs/IPC, schemas/state, UI/Bus surfaces, tests, deployment impact, and explicit success/fail criteria before implementation.
+
+Do not slip isolated fixes into one file and then chase failures. If validation fails, stop, update the evidence/design, and make one revised coherent change set.
