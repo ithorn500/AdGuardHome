@@ -4,8 +4,8 @@ This repo follows the cross-repo agent mandate: **measure twice, cut once**. Bef
 
 # Guidance for coding agents
 
-This root is the current AdGuardHome fork workspace mounted at `/mnt/adguard`, with the LXC runtime
-payload preserved in place. It tracks `origin=https://github.com/ithorn500/AdGuardHome.git` and
+This root is the current AdGuardHome fork source workspace at `/opt/adguard`; `/mnt/adguard` is
+runtime mirror/payload only. It tracks `origin=https://github.com/ithorn500/AdGuardHome.git` and
 `upstream=https://github.com/AdguardTeam/AdGuardHome.git`.
 
 The cross-repo source of truth is `/opt/AIGateway/AGENTS.md`. This file is the AdGuardHome-local
@@ -23,15 +23,15 @@ or DNS work.
 | Host / workspace | Address | Notes |
 | --- | --- | --- |
 | `gemma.amber.com` / `/opt/AIGateway` | `192.168.0.48` | Command Repo and Gemma Gateway appliance. |
-| `guardian.amber.com` / `/mnt/guardian` | `192.168.0.47` | Guardian control plane/runtime owner. |
-| `amber-bus.amber.com` / `/mnt/amber-bus` | `192.168.0.45` | Amber Bus owner host. |
-| `logger.amber.com` / `/mnt/logger` | `192.168.0.45` | Logger resolves to the Amber Bus host address. |
-| `adguard.amber.com` / `/mnt/adguard` | `192.168.0.4` | DNS/filtering perimeter. |
+| `guardian.amber.com` / `/opt/guardian` | `192.168.0.47` | Guardian control plane/runtime owner; source repo is `/opt/guardian`. |
+| `amber-bus.amber.com` / `/opt/amber-bus` | `192.168.0.45` | Amber Bus owner host; source repo is `/opt/amber-bus`. |
+| `logger.amber.com` / `/opt/logger` | `192.168.0.45` | Logger resolves to the Amber Bus host address; source repo is `/opt/logger`. |
+| `adguard.amber.com` / `/opt/adguard` | `192.168.0.4` | DNS/filtering perimeter; source repo is `/opt/adguard`. |
 | `pfsense.amber.com` / `/mnt/pfsense` | `192.168.0.5` | Firewall/router perimeter workspace. |
-| `actorr.amber.com` / `/mnt/actorr` | `192.168.0.49` | Actorr media actuator owner host. |
+| `actorr.amber.com` / `/opt/actorr` | `192.168.0.49` | Actorr media actuator owner host; source repo is `/opt/actorr`. |
 | `homeassistant.amber.com` / `/mnt/homeassistant` | `192.168.0.164` | Live Home Assistant config/telemetry host. |
 | `homeassistant.local` | unresolved from AIGateway on 2026-05-24 | Prefer `homeassistant.amber.com` when resolution from AIGateway matters. |
-| `memorr.amber.com` / `/mnt/memorr/opt/memorr` | `192.168.0.46` | Memorr source workspace; broader `/mnt/memorr` is the host/runtime filesystem. |
+| `memorr.amber.com` / `/opt/memorr` | `192.168.0.46` | Memorr owner host; source repo is `/opt/memorr`. |
 | `adserver.amber.com` | `192.168.0.51` | Windows AD DNS/DHCP authority, not a mounted repo owner. |
 
 ## Boundary
