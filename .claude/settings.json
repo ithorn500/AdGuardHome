@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /opt/amber-devops/hooks/amber_session_start.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /opt/amber-devops/hooks/amber_turn_digest.py"
+          }
+        ]
+      }
+    ]
+  }
+}
