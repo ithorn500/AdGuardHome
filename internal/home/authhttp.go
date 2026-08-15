@@ -312,6 +312,12 @@ func isPublicResource(p string) (ok bool) {
 		panic(fmt.Errorf("bad login pattern: %w", err))
 	}
 
+	isForgotPassword, err := path.Match("/forgot_password.*", p)
+	if err != nil {
+		// Same as above.
+		panic(fmt.Errorf("bad forgot password pattern: %w", err))
+	}
+
 	paths := []string{
 		"/control/login",
 		"/apple/doh.mobileconfig",
@@ -322,7 +328,7 @@ func isPublicResource(p string) (ok bool) {
 		"/install.html",
 	}
 
-	return isAsset || isLogin || slices.Contains(paths, p)
+	return isAsset || isLogin || isForgotPassword || slices.Contains(paths, p)
 }
 
 // isDoHRoute returns true if r is a request to a DoH route.  r must not be nil.
@@ -446,7 +452,7 @@ func (mw *authMiddlewareDefault) handleAuthenticatedUser(
 		return false
 	}
 
-	if path == "/login.html" {
+	if path == "/login.html" || path == "/forgot_password.html" {
 		http.Redirect(w, r, "/", http.StatusFound)
 
 		return true
