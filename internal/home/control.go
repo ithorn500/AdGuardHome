@@ -123,14 +123,10 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	l := web.logger
 
-<<<<<<< HEAD
 	resp, err := web.statusSnapshot(ctx)
-=======
-	extTLSConfig := web.tlsConfProvider.ExtendedTLSConfig()
-
-	dnsAddrs, err := collectDNSAddresses(extTLSConfig)
->>>>>>> upstream/master
 	if err != nil {
+		// Don't add a lot of formatting, since the error is already
+		// wrapped by collectDNSAddresses.
 		aghhttp.ErrorAndLog(ctx, l, r, w, http.StatusInternalServerError, "%s", err)
 
 		return
@@ -140,7 +136,9 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (web *webAPI) statusSnapshot(ctx context.Context) (resp statusResponse, err error) {
-	dnsAddrs, err := collectDNSAddresses(web.tlsManager)
+	extTLSConfig := web.tlsConfProvider.ExtendedTLSConfig()
+
+	dnsAddrs, err := collectDNSAddresses(extTLSConfig)
 	if err != nil {
 		return statusResponse{}, err
 	}
