@@ -15,6 +15,37 @@ import (
 
 const amberBusInvokePath = "/control/amber_bus/invoke"
 
+// amberBusTokenEnv names the environment variable holding the shared connector
+// token.  Declared here, next to the connector it belongs to, and used by the
+// auth middleware as well, so the two can never disagree about the name.
+const amberBusTokenEnv = "ADGUARDHOME_AMBER_BUS_TOKEN"
+
+// amberBusUIStatus is the fork-local Amber Bus block in the /control/status
+// response.  It exists so the web UI can report the connector's real state:
+// the mark used to be a static label that claimed "connected" unconditionally,
+// which stayed reassuring through exactly the outage it should have reported.
+type amberBusUIStatus struct {
+	// Path is the invoke endpoint, so the UI does not hard-code it.
+	Path string `json:"path"`
+
+	// Mode is the connector's exposure, currently always read-only.
+	Mode string `json:"mode"`
+
+	// Configured reports whether the connector token is set.  When it is not,
+	// bus callers fall through to session auth and the connector is silently
+	// unreachable — the one state worth surfacing in the UI.
+	Configured bool `json:"configured"`
+}
+
+// amberBusUIStatusSnapshot returns the connector state for /control/status.
+func amberBusUIStatusSnapshot() (s *amberBusUIStatus) {
+	return &amberBusUIStatus{
+		Path:       amberBusInvokePath,
+		Mode:       "read-only",
+		Configured: os.Getenv(amberBusTokenEnv) != "",
+	}
+}
+
 func (web *webAPI) registerAmberBusConnectorHandlers() {
 	logger := web.baseLogger.With(slogutil.KeyPrefix, "amber_bus")
 	dispatcher := amberbusconnector.New(logger, map[string]amberbusconnector.HandlerFunc{
