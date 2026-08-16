@@ -1,5 +1,64 @@
 # AdGuard Home Fork Change Log
 
+## swept: Connector: stop answering the wrong question, stop reaching into globalContext
+
+THE WRONG ANSWER. A caller could ask the query log for one client's lookups
+and get the whole log back with ok:true. The handler appended search, domain
+and client to one url.Values key; AdGuard reads it with Get, which returns
+only the first, so two filters were accepted and silently discarded.
+querylog.Search returns `any`, so the response cannot be filtered afterwards —
+the fix is at request level: any one of the three is accepted, more than one
+is refused naming the offenders. Also caps the limit, which the bus manifest
+promised and nothing enforced, and reports the applied limit back.
+
+THE DRAWER. The three globalContext reaches are replaced by narrow interfaces
+resolved in ONE function that takes what it is given and falls back to the
+global for anything absent — so both forms work while upstream dismantles it,
+and when a field goes the compiler stops in one place, loudly. stats.Interface
+and querylog.QueryLog are already interfaces upstream, so those two will need
+no change at all when they are handed in; only clientsContainer needed a
+shape. Handlers moved onto their own type, so the fork adds no fields to
+upstream structs.
+
+Also fixes a suppressed signal: a stopped AdGuard hid protection_disabled
+because one guard covered both severity and the signal list. Severity is now
+derived from the signals. recommended_actions, empty since day one, says
+something.
+
+Verified: 9 tests where there were none, including regression tests for both
+bugs; go test ./... green; RCP-CLEANUP-BUILD-d3bb32b860d022d6 exit [0,0,0].
+
+Connector: stop answering the wrong question, stop reaching into globalContext
+
+THE WRONG ANSWER. A caller could ask the query log for one client's lookups
+and get the whole log back with ok:true. The handler appended search, domain
+and client to one url.Values key; AdGuard reads it with Get, which returns
+only the first, so two filters were accepted and silently discarded.
+querylog.Search returns `any`, so the response cannot be filtered afterwards —
+the fix is at request level: any one of the three is accepted, more than one
+is refused naming the offenders. Also caps the limit, which the bus manifest
+promised and nothing enforced, and reports the applied limit back.
+
+THE DRAWER. The three globalContext reaches are replaced by narrow interfaces
+resolved in ONE function that takes what it is given and falls back to the
+global for anything absent — so both forms work while upstream dismantles it,
+and when a field goes the compiler stops in one place, loudly. stats.Interface
+and querylog.QueryLog are already interfaces upstream, so those two will need
+no change at all when they are handed in; only clientsContainer needed a
+shape. Handlers moved onto their own type, so the fork adds no fields to
+upstream structs.
+
+Also fixes a suppressed signal: a stopped AdGuard hid protection_disabled
+because one guard covered both severity and the signal list. Severity is now
+derived from the signals. recommended_actions, empty since day one, says
+something.
+
+Verified: 9 tests where there were none, including regression tests for both
+bugs; go test ./... green; RCP-CLEANUP-BUILD-d3bb32b860d022d6 exit [0,0,0].
+
+Swept by the central git manager on behalf of Operator Agent#soft-otter, covering 2 path(s) that agent claimed. This entry exists because change.log is append-only and a multi-agent sweep needs one entry per attributed commit - the gate reads the staged set, so a shared entry could only ever cover one group.
+
+
 ## the connector stopped answering the wrong question, and stopped reaching into a drawer that is being taken away
 
 Two changes that are really one, because the second is what made the first
