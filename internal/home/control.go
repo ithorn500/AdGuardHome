@@ -112,6 +112,12 @@ type statusResponse struct {
 	// StartTime is the start time of the web API server in Unix milliseconds.
 	StartTime aghhttp.JSONTime `json:"start_time"`
 
+	// AmberBus reports whether the Amber Bus connector is configured, so the
+	// web UI can say so truthfully rather than asserting it.  Fork-local
+	// field, and always present: "not configured" is the state an operator
+	// most needs to see, since an unset token otherwise fails silently.
+	AmberBus *amberBusUIStatus `json:"amber_bus"`
+
 	ProtectionEnabled bool `json:"protection_enabled"`
 	// TODO(e.burkov): Inspect if front-end doesn't requires this field as
 	// openapi.yaml declares.
@@ -183,6 +189,8 @@ func (web *webAPI) statusSnapshot(ctx context.Context) (resp statusResponse, err
 	if runtime.GOOS != "windows" {
 		resp.IsDHCPAvailable = globalContext.dhcpServer != nil
 	}
+
+	resp.AmberBus = amberBusUIStatusSnapshot()
 
 	return resp, nil
 }

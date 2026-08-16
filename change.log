@@ -1,0 +1,146 @@
+# AdGuard Home Fork Change Log
+
+## swept: Rebuild the Amber Bus mark in client_v2, wired to the connector's real state
+
+The old mark was static React markup in client/, which upstream PR 2715 left
+behind when it moved CLIENT_DIR to client_v2/, so it had stopped being built
+at all. It also rendered title="Amber Bus connected" unconditionally, which
+meant it stayed reassuring during exactly the failure it should have reported.
+
+client_v2 is SolidJS, not React, so this is a rebuild rather than a port, and
+it now reads real state: /control/status gains a fork-local `amber_bus` block
+(invoke path, exposure mode, whether the token is set), the mark renders
+nothing on a server that does not publish it, and says "Amber Bus not
+configured" when the token is missing. It sits in the Sidebar as well as the
+Header, because the Header is display:none above 1200px.
+
+Also adds amber_bus.client.version.json, which the bus manifest has always
+declared as local_manifest_required and which did not exist.
+
+And a .gitignore negation for change.log: upstream's `*.log` rule swallowed
+it, so central-git could not record a sweep reason and refused to commit
+anything in this repo at all.
+
+Verified: RCP-CLEANUP-BUILD-089232c459c510fb exit [0,0,0]; go test ok; the new
+label appears in the built binary, which it did not before the Hub's build
+ordering was fixed the same day.
+
+Rebuild the Amber Bus mark in client_v2, wired to the connector's real state
+
+The old mark was static React markup in client/, which upstream PR 2715 left
+behind when it moved CLIENT_DIR to client_v2/, so it had stopped being built
+at all. It also rendered title="Amber Bus connected" unconditionally, which
+meant it stayed reassuring during exactly the failure it should have reported.
+
+client_v2 is SolidJS, not React, so this is a rebuild rather than a port, and
+it now reads real state: /control/status gains a fork-local `amber_bus` block
+(invoke path, exposure mode, whether the token is set), the mark renders
+nothing on a server that does not publish it, and says "Amber Bus not
+configured" when the token is missing. It sits in the Sidebar as well as the
+Header, because the Header is display:none above 1200px.
+
+Also adds amber_bus.client.version.json, which the bus manifest has always
+declared as local_manifest_required and which did not exist.
+
+And a .gitignore negation for change.log: upstream's `*.log` rule swallowed
+it, so central-git could not record a sweep reason and refused to commit
+anything in this repo at all.
+
+Verified: RCP-CLEANUP-BUILD-089232c459c510fb exit [0,0,0]; go test ok; the new
+label appears in the built binary, which it did not before the Hub's build
+ordering was fixed the same day.
+
+Swept by the central git manager on behalf of Operator Agent#soft-otter, covering 12 path(s) that agent claimed. This entry exists because change.log is append-only and a multi-agent sweep needs one entry per attributed commit - the gate reads the staged set, so a shared entry could only ever cover one group.
+
+
+## swept: Rebuild the Amber Bus mark in client_v2, wired to the connector's real state
+
+The old mark was static React markup in client/, which upstream PR 2715 left
+behind when it moved CLIENT_DIR to client_v2/ — so it had stopped being built
+at all. It also rendered title="Amber Bus connected" unconditionally, which
+meant it stayed reassuring during exactly the failure it should have reported.
+
+client_v2 is SolidJS, not React, so this is a rebuild rather than a port, and
+it now reads real state: /control/status gains a fork-local `amber_bus` block
+(invoke path, exposure mode, whether the token is set), the mark renders
+nothing on a server that does not publish it, and says "Amber Bus not
+configured" when the token is missing. It sits in the Sidebar as well as the
+Header, because the Header is display:none above 1200px.
+
+Also adds amber_bus.client.version.json, which the bus manifest has always
+declared as local_manifest_required and which did not exist. framework_version
+stays 0.4.0 — that is current per amber-bus CLIENT_FRAMEWORK_VERSION.
+
+Verified: RCP-CLEANUP-BUILD-089232c459c510fb exit [0,0,0]; go test ok; the new
+label appears in the built binary, which it did not before the Hub's build
+ordering was fixed the same day.
+
+Rebuild the Amber Bus mark in client_v2, wired to the connector's real state
+
+The old mark was static React markup in client/, which upstream PR 2715 left
+behind when it moved CLIENT_DIR to client_v2/ — so it had stopped being built
+at all. It also rendered title="Amber Bus connected" unconditionally, which
+meant it stayed reassuring during exactly the failure it should have reported.
+
+client_v2 is SolidJS, not React, so this is a rebuild rather than a port, and
+it now reads real state: /control/status gains a fork-local `amber_bus` block
+(invoke path, exposure mode, whether the token is set), the mark renders
+nothing on a server that does not publish it, and says "Amber Bus not
+configured" when the token is missing. It sits in the Sidebar as well as the
+Header, because the Header is display:none above 1200px.
+
+Also adds amber_bus.client.version.json, which the bus manifest has always
+declared as local_manifest_required and which did not exist. framework_version
+stays 0.4.0 — that is current per amber-bus CLIENT_FRAMEWORK_VERSION.
+
+Verified: RCP-CLEANUP-BUILD-089232c459c510fb exit [0,0,0]; go test ok; the new
+label appears in the built binary, which it did not before the Hub's build
+ordering was fixed the same day.
+
+Swept by the central git manager on behalf of Operator Agent#soft-otter, covering 11 path(s) that agent claimed. This entry exists because change.log is append-only and a multi-agent sweep needs one entry per attributed commit - the gate reads the staged set, so a shared entry could only ever cover one group.
+
+
+This is the ESTATE's log for this vendor fork, and it is not upstream's
+CHANGELOG.md. Upstream owns that file and every merge overwrites it; this one
+records only what the estate did and why, so the fork's own history survives
+the next 79-commit merge.
+
+## the Amber Bus mark is back, and this time it tells the truth
+
+The mark that says this AdGuard is the estate's fork had quietly stopped
+existing. Upstream PR 2715 moved CLIENT_DIR from client/ to client_v2/, and
+the mark lived in client/ — preserved byte-for-byte by the merge, compiled by
+nothing.
+
+Rebuilding it surfaced the more interesting problem: the old one was static
+markup with title="Amber Bus connected", rendered unconditionally. It claimed
+the connector was connected whether or not a token was configured, so it
+would have read "connected" throughout precisely the outage it existed to
+report. A decorative indicator is worse than no indicator, because people
+believe it.
+
+The replacement reads real state. GET /control/status now carries a
+fork-local `amber_bus` block — invoke path, exposure mode, and whether the
+connector token is actually set — and the mark renders from it: nothing at
+all on a server that does not publish the block, and "Amber Bus not
+configured" when the token is missing. That last state is the one worth
+showing: an unset token falls through to session auth, so bus calls are
+rejected and nothing else in the UI would say so.
+
+Two things worth knowing for the next person in here. client_v2 is SolidJS,
+not React, so anything carried over from client/ is a rebuild and not a port.
+And the mark had to go in the Sidebar as well as the Header, because the
+Header is display:none above 1200px — putting it only where the old one lived
+would have made it invisible on every desktop.
+
+Also adds amber_bus.client.version.json. The bus manifest has always declared
+local_manifest_required and named that exact file, and it did not exist, so
+nothing was reporting the fork's connector version at all. framework_version
+stays 0.4.0: that is current, per amber-bus CLIENT_FRAMEWORK_VERSION, and the
+0.4.6 in the bus's native_client_manifest is a different artifact with a
+version line of its own — the two are not comparable.
+
+Verified by asking whether the artifact actually contained the change, rather
+than whether the build was green: the new label appears in the built binary,
+which it did NOT before the build ordering was fixed in the Hub's registry
+the same day. | Operator Agent

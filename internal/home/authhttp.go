@@ -493,9 +493,7 @@ func (mw *authMiddlewareDefault) handlePublicAccess(
 }
 
 func amberBusTokenAuthenticated(r *http.Request) (ok bool) {
-	const envToken = "ADGUARDHOME_AMBER_BUS_TOKEN"
-
-	want := os.Getenv(envToken)
+	want := os.Getenv(amberBusTokenEnv)
 	if want == "" {
 		return false
 	}

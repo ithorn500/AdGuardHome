@@ -44,3 +44,9 @@ node_modules/
 tmp/
 
 !/build/gitkeep
+
+# The estate's own change log for this fork. `*.log` above is upstream's rule
+# for build and run output, and it swallowed this file: central-git requires a
+# change.log to record the reason for a sweep, so without this negation no
+# attributed commit can ever land in this repo. Not a build artifact.
+!/change.log
