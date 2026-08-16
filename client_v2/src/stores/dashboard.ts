@@ -153,6 +153,7 @@ export const getDnsStatus = async () => {
                 protectionDisabledDuration: dnsStatus.protection_disabled_duration,
                 language: dnsStatus.language,
                 httpPort: dnsStatus.http_port,
+                amberBus: amberBusFromStatus(dnsStatus),
             });
             getVersion();
             getTlsStatus();
