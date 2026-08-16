@@ -12,6 +12,7 @@ import {
     updateProfile,
 } from 'panel/api/generated';
 import { customFetch } from 'panel/api/customFetch';
+import { amberBusFromStatus } from 'panel/common/ui/Header/amberBus';
 import type { ServerStatus } from 'panel/api/model/serverStatus';
 import type { VersionInfo } from 'panel/api/model/versionInfo';
 import type { Clients } from 'panel/api/model/clients';
@@ -153,6 +154,7 @@ export const getDnsStatus = async () => {
                 protectionDisabledDuration: dnsStatus.protection_disabled_duration,
                 language: dnsStatus.language,
                 httpPort: dnsStatus.http_port,
+                amberBus: amberBusFromStatus(dnsStatus),
             });
             getVersion();
             getTlsStatus();

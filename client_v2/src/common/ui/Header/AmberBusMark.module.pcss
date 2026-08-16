@@ -1,0 +1,57 @@
+/*
+ * The estate mark. It sits beside the AdGuard logo in both the mobile header
+ * and the desktop sidebar, so it is deliberately quiet: this is a provenance
+ * mark, not a control, and it must not compete with the product's own brand.
+ */
+.mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    padding: 3px 8px;
+    border: 1px solid var(--product-primary-90, #67b279);
+    border-radius: 4px;
+    color: var(--product-primary-90, #67b279);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.label {
+    font-weight: 500;
+}
+
+/*
+ * Not configured is a real operational state, not an error to hide: the
+ * connector is unreachable and nothing else in the UI says so. Muted rather
+ * than alarming, because DNS itself is fine.
+ */
+.unconfigured {
+    border-color: var(--text-secondary, #8a8a8a);
+    color: var(--text-secondary, #8a8a8a);
+    opacity: 0.85;
+}
+
+/*
+ * The label costs more room than it earns on a narrow screen, where the
+ * header is already carrying a burger menu and the logo. The icon and its
+ * tooltip still identify the fork.
+ */
+@media (max-width: 420px) {
+    .label {
+        display: none;
+    }
+}
