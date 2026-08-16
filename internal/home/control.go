@@ -190,6 +190,8 @@ func (web *webAPI) statusSnapshot(ctx context.Context) (resp statusResponse, err
 		resp.IsDHCPAvailable = globalContext.dhcpServer != nil
 	}
 
+	resp.AmberBus = amberBusUIStatusSnapshot()
+
 	return resp, nil
 }
 
