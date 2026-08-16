@@ -2,8 +2,6 @@ import { createSignal } from 'solid-js';
 import { Link } from 'panel/common/ui/Link';
 import { Menu } from 'panel/common/ui/Menu';
 import { RoutePath } from 'panel/components/Routes/Paths';
-import { dashboardState } from 'panel/stores/dashboard';
-import { AmberBusMark } from 'panel/common/ui/Header/AmberBusMark';
 
 import s from './styles.module.pcss';
 import { Logo } from './Logo';
@@ -21,7 +19,6 @@ export const Sidebar = () => {
                                 <Logo id="sidebar" />
                             </div>
                         </Link>
-                        <AmberBusMark status={dashboardState.amberBus} />
                     </div>
                     <Menu
                         rightSideDropdown

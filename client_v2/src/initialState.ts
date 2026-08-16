@@ -10,7 +10,6 @@ import {
 } from './helpers/constants';
 import { DEFAULT_BLOCKING_IPV4, DEFAULT_BLOCKING_IPV6 } from './stores/dnsConfig';
 import { Filter, type NormalizedQueryLogItem } from './helpers/helpers';
-import type { AmberBusStatus } from './common/ui/Header/amberBus';
 import type { WhoisInfo } from './api/model/whoisInfo';
 import type { ClientAuto as AutoClient } from './api/model/clientAuto';
 import type { Client } from './api/model/client';
@@ -112,7 +111,6 @@ export type DashboardData = {
     dnsPort: number;
     dnsAddresses: string[];
     dnsVersion: string;
-    amberBus: AmberBusStatus | null;
     clients: Client[];
     autoClients: AutoClient[];
     supportedTags: string[];
@@ -454,7 +452,6 @@ export const initialState: RootState = {
         dnsPort: STANDARD_DNS_PORT,
         dnsAddresses: [],
         dnsVersion: '',
-        amberBus: null,
         clients: [],
         autoClients: [],
         supportedTags: [],
