@@ -111,6 +111,7 @@ export type DashboardData = {
     dnsPort: number;
     dnsAddresses: string[];
     dnsVersion: string;
+    amberBus: AmberBusStatus | null;
     clients: Client[];
     autoClients: AutoClient[];
     supportedTags: string[];
