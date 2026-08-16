@@ -5,8 +5,10 @@ import { Link } from 'panel/common/ui/Link';
 import { Menu } from 'panel/common/ui/Menu';
 import { RoutePath } from 'panel/components/Routes/Paths';
 import theme from 'panel/lib/theme';
+import { dashboardState } from 'panel/stores/dashboard';
 
 import s from './Header.module.pcss';
+import { AmberBusMark } from './AmberBusMark';
 import { Logo } from '../Sidebar/Logo';
 
 const BURGER_MENU_ID = 'linksMenu';
@@ -47,6 +49,7 @@ export const Header = () => {
                             <Logo id="header" />
                         </div>
                     </Link>
+                    <AmberBusMark status={dashboardState.amberBus} />
                 </div>
             </div>
             <div
