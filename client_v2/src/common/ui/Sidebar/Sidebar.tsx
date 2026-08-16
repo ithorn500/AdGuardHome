@@ -21,6 +21,7 @@ export const Sidebar = () => {
                                 <Logo id="sidebar" />
                             </div>
                         </Link>
+                        <AmberBusMark status={dashboardState.amberBus} />
                     </div>
                     <Menu
                         rightSideDropdown
