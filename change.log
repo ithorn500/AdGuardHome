@@ -1,5 +1,52 @@
 # AdGuard Home Fork Change Log
 
+## swept: AdGuard keeps a rotating internet address published to Namecheap
+
+The house has a dynamic public IP and thethornfamily.co.uk on Namecheap, and nothing kept the two in agreement. AdGuard Home is the right place for it: it is already the DNS perimeter, already runs continuously, and already resolves through configured upstreams.
+
+New package internal/amberddns/, wired from internal/home/amberddns.go. Footprint in upstream files is 16 lines: a /control/status block, the bus registration in the fork own file, the start call, and a SIGHUP hook.
+
+NOT THE NAMECHEAP API. api.namecheap.com requires the caller address to be whitelisted in advance, which cannot work when the changing address IS the problem, and its setHosts replaces a domain whole record set - so moving one A record with it risks deleting the CNAME and TXT records beside it. The dynamic DNS endpoint updates one record and has neither problem.
+
+THREE TRAPS, CONFIRMED AGAINST THE LIVE ENDPOINT rather than assumed. A rejected update answers HTTP 200. A rejected update answers Done true. And the XML declares encoding utf-16 over an ASCII body served as Content-Type application/json, which makes Go xml.Decoder refuse the document until given a CharsetReader that passes bytes through unchanged - correct precisely BECAUSE the declaration is wrong. ErrCount is the only field that means it worked. Each has a regression test on the captured response.
+
+TWO BUGS THE TESTS FOUND, both silent in production. An HTML error page from a proxy decoded into a zero-valued struct whose ErrCount of 0 read as a successful publish; the root element is now pinned. And the password is a query parameter, so url.Error printed the full URL - a redacted format string with a raw error wrapped into it leaked the credential into the log anyway; the message is now scrubbed while the chain stays intact for errors.Is.
+
+WHAT IT REFUSES TO DO. Publish an RFC 1918, CGNAT, loopback, link-local, reserved or IPv6 address. Act on a change reported by one reflector: an apparent move is confirmed against a different service first. Hammer a provider that rejected it, since a wrong password is a configuration fault.
+
+Publication state is per record, so a partial failure retries only the host that failed. An unchanged address is still re-asserted every force_refresh_interval.
+
+A bad config logs loudly and does NOT stop AdGuard Home. This process is the network resolver. State is on /control/status under dynamic_dns and on the bus as adguard.ddns.status, both read-only.
+
+Config is a separate fork-owned file, amber_ddns.yaml, never AdGuardHome.yaml - which also matches the deploy adapter, that being binary-only and never syncing a tree over the live config.
+
+Verified: 42 tests where there were none; go test ./... green repo-wide; go vet clean; race clean; 91.9 percent statement coverage on the new package.
+
+AdGuard keeps a rotating internet address published to Namecheap
+
+The house has a dynamic public IP and thethornfamily.co.uk on Namecheap, and nothing kept the two in agreement. AdGuard Home is the right place for it: it is already the DNS perimeter, already runs continuously, and already resolves through configured upstreams.
+
+New package internal/amberddns/, wired from internal/home/amberddns.go. Footprint in upstream files is 16 lines: a /control/status block, the bus registration in the fork own file, the start call, and a SIGHUP hook.
+
+NOT THE NAMECHEAP API. api.namecheap.com requires the caller address to be whitelisted in advance, which cannot work when the changing address IS the problem, and its setHosts replaces a domain whole record set - so moving one A record with it risks deleting the CNAME and TXT records beside it. The dynamic DNS endpoint updates one record and has neither problem.
+
+THREE TRAPS, CONFIRMED AGAINST THE LIVE ENDPOINT rather than assumed. A rejected update answers HTTP 200. A rejected update answers Done true. And the XML declares encoding utf-16 over an ASCII body served as Content-Type application/json, which makes Go xml.Decoder refuse the document until given a CharsetReader that passes bytes through unchanged - correct precisely BECAUSE the declaration is wrong. ErrCount is the only field that means it worked. Each has a regression test on the captured response.
+
+TWO BUGS THE TESTS FOUND, both silent in production. An HTML error page from a proxy decoded into a zero-valued struct whose ErrCount of 0 read as a successful publish; the root element is now pinned. And the password is a query parameter, so url.Error printed the full URL - a redacted format string with a raw error wrapped into it leaked the credential into the log anyway; the message is now scrubbed while the chain stays intact for errors.Is.
+
+WHAT IT REFUSES TO DO. Publish an RFC 1918, CGNAT, loopback, link-local, reserved or IPv6 address. Act on a change reported by one reflector: an apparent move is confirmed against a different service first. Hammer a provider that rejected it, since a wrong password is a configuration fault.
+
+Publication state is per record, so a partial failure retries only the host that failed. An unchanged address is still re-asserted every force_refresh_interval.
+
+A bad config logs loudly and does NOT stop AdGuard Home. This process is the network resolver. State is on /control/status under dynamic_dns and on the bus as adguard.ddns.status, both read-only.
+
+Config is a separate fork-owned file, amber_ddns.yaml, never AdGuardHome.yaml - which also matches the deploy adapter, that being binary-only and never syncing a tree over the live config.
+
+Verified: 42 tests where there were none; go test ./... green repo-wide; go vet clean; race clean; 91.9 percent statement coverage on the new package.
+
+Swept by the central git manager on behalf of Operator Agent#fleet-harbour, covering 15 path(s) that agent claimed. This entry exists because change.log is append-only and a multi-agent sweep needs one entry per attributed commit - the gate reads the staged set, so a shared entry could only ever cover one group.
+
+
 ## AdGuard now keeps a rotating internet address published to Namecheap
 
 The house has a dynamic public IP and a Namecheap domain, and nothing was
