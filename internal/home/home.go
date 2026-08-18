@@ -883,6 +883,10 @@ func run(
 		checkPermissions(ctx, baseLogger, workDir, confPath, dataDirPath, statsDir, querylogDir)
 	}
 
+	// Fork-local.  Started after the DNS server because it resolves the
+	// provider and the address reflectors through it.
+	initAmberDDNS(ctx, baseLogger, tlsMgr, workDir)
+
 	web.start(ctx)
 
 	// Wait for other goroutines to complete their job.

@@ -131,6 +131,7 @@ func (web *webAPI) registerAmberBusConnectorHandlers() {
 		"adguard.clients.list":     c.clientsList,
 		"adguard.filtering.status": c.filteringStatus,
 		"adguard.security.summary": c.securitySummary,
+		"adguard.ddns.status":      c.ddnsStatus,
 	})
 
 	web.httpReg.Register(http.MethodPost, amberBusInvokePath, dispatcher.ServeHTTP)

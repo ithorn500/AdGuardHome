@@ -118,6 +118,12 @@ type statusResponse struct {
 	// most needs to see, since an unset token otherwise fails silently.
 	AmberBus *amberBusUIStatus `json:"amber_bus"`
 
+	// DynamicDNS reports the fork-local dynamic DNS manager's real state.
+	// Fork-local field, and always present: a publishing failure is otherwise
+	// invisible until an external name silently stops resolving, which is the
+	// worst moment to find out.
+	DynamicDNS *amberDDNSUIStatus `json:"dynamic_dns"`
+
 	ProtectionEnabled bool `json:"protection_enabled"`
 	// TODO(e.burkov): Inspect if front-end doesn't requires this field as
 	// openapi.yaml declares.
@@ -191,6 +197,7 @@ func (web *webAPI) statusSnapshot(ctx context.Context) (resp statusResponse, err
 	}
 
 	resp.AmberBus = amberBusUIStatusSnapshot()
+	resp.DynamicDNS = amberDDNSUIStatusSnapshot()
 
 	return resp, nil
 }

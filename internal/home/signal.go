@@ -148,6 +148,10 @@ func (h *signalHandler) reloadConfig(ctx context.Context) {
 			h.logger.ErrorContext(ctx, "refreshing tls manager", slogutil.KeyError, err)
 		}
 	}
+
+	// Fork-local: re-check the public address now rather than waiting out a
+	// backoff that may have grown to hours.
+	refreshAmberDDNS()
 }
 
 // signalHandlerCleanup performs application resources cleanup for

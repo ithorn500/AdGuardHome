@@ -1,0 +1,88 @@
+# Amber dynamic DNS — example configuration.
+#
+# Copy to the AdGuard Home working directory as amber_ddns.yaml (or point
+# ADGUARDHOME_AMBER_DDNS_CONF at it), fill in your domain, and restart.
+#
+# This file is deliberately NOT part of AdGuardHome.yaml. Upstream owns that
+# file's schema and migrates it, and it holds a live credential that
+# AdGuardHome.yaml is not a safe place for.
+#
+# The credential is the domain's *Dynamic DNS Password* — Namecheap dashboard:
+#   Domain List -> Manage -> Advanced DNS -> Dynamic DNS.
+# It is NOT your Namecheap account password, and NOT an API key.
+
+# Off unless explicitly enabled: merely having this file present must not start
+# publishing DNS records.
+enabled: true
+
+# How often the public address is re-checked. Detection does not touch
+# Namecheap; only an actual change does. Minimum 1m. Default 5m.
+check_interval: 5m
+
+# How long a record may go without being re-published even when the address has
+# not changed. This is what repairs a record edited by hand, rolled back
+# provider-side, or left stale by a restart. Default 24h.
+force_refresh_interval: 24h
+
+domains:
+  - domain: example.com
+
+    # Preferred: name an environment variable holding the password, so the
+    # credential never sits in a file at all. For a systemd unit:
+    #
+    #   [Service]
+    #   Environment=ADGUARDHOME_AMBER_DDNS_PASSWORD=<the 32-character password>
+    #
+    # Better still, use EnvironmentFile= with a root-owned mode 600 file so the
+    # value is not visible in `systemctl show` or /proc.
+    password_env: ADGUARDHOME_AMBER_DDNS_PASSWORD
+
+    # Alternative to password_env: the password as a literal. If you use this,
+    # the file must be mode 600 or AdGuard Home will refuse to start the
+    # manager and say so — a dynamic DNS password readable by other local
+    # accounts hands them the ability to repoint your domain.
+    #
+    # password: 0123456789abcdef0123456789abcdef
+
+    # Host records to keep pointed at the current address. "@" is the bare
+    # domain, "*" a wildcard, or a bare label such as "www". Give the label
+    # only, never "www.example.com". Each entry costs one request, because
+    # Namecheap updates one record per call.
+    hosts:
+      - "@"
+      - "*"
+
+  # A second domain needs its own password: Namecheap's dynamic DNS password is
+  # per domain, not per account.
+  #
+  # - domain: example.net
+  #   password_env: EXAMPLE_NET_DDNS_PASSWORD
+  #   hosts: ["home"]
+
+# Address reflectors, tried in order until one answers with a public IPv4.
+# More than one is listed on purpose: with a single source, an outage is
+# indistinguishable from a changed address. Override only if you have a reason.
+#
+# echo_urls:
+#   - https://checkip.amazonaws.com
+#   - https://api.ipify.org
+#   - https://icanhazip.com
+#   - https://ifconfig.me/ip
+
+# Provider endpoint. Present for testing against a stub; leave unset.
+#
+# endpoint: https://dynamicdns.park-your-domain.com/update
+
+# Notes and limits:
+#
+#   * IPv4 only. Namecheap's dynamic DNS updates A records; it has no AAAA
+#     support, so an IPv6-only connection cannot be published.
+#   * `domain` and each `host` must match the case shown in your Namecheap
+#     dashboard.
+#   * Under carrier-grade NAT (a 100.64.0.0/10 address) there is no public
+#     address to publish. The manager detects this and says so rather than
+#     writing an unreachable record; the fix is with your ISP.
+#   * State is visible on /control/status under "dynamic_dns", and over Amber
+#     Bus as the read-only function adguard.ddns.status.
+#   * SIGHUP forces an immediate check, which is how to escape a long backoff
+#     after correcting a password:  systemctl reload AdGuardHome
