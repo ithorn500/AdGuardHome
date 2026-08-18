@@ -1,5 +1,79 @@
 # AdGuard Home Fork Change Log
 
+## AdGuard now keeps a rotating internet address published to Namecheap
+
+The house has a dynamic public IP and a Namecheap domain, and nothing was
+keeping the two in agreement. AdGuard Home is the obvious place to put that: it
+is already the DNS perimeter, it already runs continuously on the LAN, and it
+already resolves through configured upstreams — so the updater inherits a
+process whose whole job is being right about DNS.
+
+New package internal/amberddns/, wired in from internal/home/amberddns.go. The
+fork adds no fields to upstream types except one status field, and the whole
+surface is four upstream lines: a /control/status block, the bus registration
+(in the fork's own file), the start call, and a SIGHUP hook.
+
+NOT THE NAMECHEAP API. api.namecheap.com authenticates with an API key and
+requires the caller's address to be whitelisted in advance, which cannot work
+when the address changing is the entire problem; its setHosts method also
+replaces a domain's whole record set, so moving one A record with it risks
+deleting every other record on the domain. The dynamic DNS endpoint updates one
+record, authenticates with the per-domain dynamic DNS password, and has neither
+problem.
+
+THREE TRAPS, ALL CONFIRMED AGAINST THE LIVE ENDPOINT rather than assumed. A
+rejected update answers HTTP 200. A rejected update answers <Done>true</Done>.
+And the XML declares encoding="utf-16" over an ASCII body, served as
+Content-Type: application/json — which makes Go's xml.Decoder refuse the
+document outright until given a CharsetReader that passes the bytes through
+unchanged, correct precisely BECAUSE the declaration is wrong. ErrCount is the
+only field that means it worked. Each has a regression test built on the
+captured response.
+
+TWO BUGS THE TESTS FOUND, both of which would have been silent in production.
+An HTML error page from a proxy or captive portal decoded into a zero-valued
+struct whose ErrCount of 0 read as a successful publish; the root element is
+now pinned, so silence cannot read as success. And the password is a query
+parameter, so *url.Error printed the full URL — a redacted format string with a
+raw error wrapped into it leaked the credential into the log anyway. The
+message is now scrubbed while the error chain stays intact for errors.Is.
+
+WHAT IT REFUSES TO DO. It will not publish an RFC 1918, CGNAT, loopback,
+link-local, reserved or IPv6 address — a reflector behind a proxy returns a
+perfectly valid address that is simply not ours, and under CGNAT there is no
+public address to publish at all, which it names so the operator takes it to
+the ISP rather than to this config. It will not act on a change reported by one
+reflector: an apparent move is confirmed against a different service first,
+because that is the only moment a wrong answer repoints the domain at a
+stranger, and in steady state it costs nothing. It will not hammer a provider
+that has rejected it — a wrong password is a configuration fault and will still
+be wrong in five minutes, so rejections back off on a slower schedule than
+network failures.
+
+Publication state is per record, not per domain, which is what makes a partial
+failure recover: the host that succeeded is left alone and the one that failed
+is retried, where a shared marker would either re-send everything or mark the
+domain current and never retry the failure at all. And an unchanged address is
+still re-asserted every force_refresh_interval, because the manager's idea of
+what is published is a belief that a hand edit or a restart can falsify without
+it noticing.
+
+A bad config logs loudly and does NOT stop AdGuard Home. This process is the
+network's resolver; refusing DNS to the whole house over a wrong dynamic DNS
+password would be far worse than the fault being reported. It is visible on
+/control/status under dynamic_dns and over the bus as adguard.ddns.status, both
+read-only — triggering an update from the bus would be a write function and
+still needs its own contract change.
+
+Config is a separate fork-owned file, amber_ddns.yaml, not AdGuardHome.yaml:
+upstream owns that schema and migrates it, and it is no place for a live
+credential. The password comes from an environment variable by preference, and
+a literal one is refused unless the file is mode 600.
+
+Verified: 46 tests where there were none; go test ./... green across the repo;
+go vet clean; race detector clean; 91.9% statement coverage on the new package.
+| Operator Agent
+
 ## swept: Connector: stop answering the wrong question, stop reaching into globalContext
 
 THE WRONG ANSWER. A caller could ask the query log for one client's lookups
