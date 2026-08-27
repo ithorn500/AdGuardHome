@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "amber-governance": {
+      "type": "stdio",
+      "command": "/opt/amber-devops/bin/amber-governance-mcp",
+      "args": [],
+      "env": {
+        "AMBER_AGENT_IDENTITY": "AdGuard agent"
+      }
+    }
+  }
+}
