@@ -26,5 +26,21 @@ Three sanctioned routes, repeated here because they save the most time:
   the benefit. If another agent owns deep experience in a topic you are
   entering, pull it (Ask-the-Expert) rather than rediscover it.
 
+## THE DOORS — read before you build, deploy, commit or sweep
+
+The sanctioned routes above say WHICH door. This says how each one behaves and
+what it will NOT do, so you never read C++ to learn your own tools:
+
+**`/opt/amber-devops/docs/agent-skills/amber-doors/SKILL.md`** — readable from
+any repo, by any harness. Claude also loads it on demand as the `amber-doors`
+skill; Codex/ChatGPT has no skill loader, so read the file.
+Also `governance_knowledge(action='get', id='kb-7a00eba3d42851ad')`.
+
+Four things in it that have each cost a cycle: a deploy LEASE PINS A COMMIT, so
+nothing may land between `request` and `promote`. MCP gates and records but does
+NOT deploy. `build_stage` is a stage fact, not a permission fact. And an
+addition to a runtime-read data file must be invisible to the parser that
+predates it, or you break ctest for every lane until they rebuild.
+
 Keep this file a pointer — the rules live in `AGENTS.md`, and a second copy is
 how they drift.
