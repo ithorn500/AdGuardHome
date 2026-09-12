@@ -44,3 +44,9 @@ predates it, or you break ctest for every lane until they rebuild.
 
 Keep this file a pointer — the rules live in `AGENTS.md`, and a second copy is
 how they drift.
+
+## GOOD CODE STORE — available now
+
+Before implementing shared code, search `governance_good_code(action='search', query=...)` for a proven exemplar and inspect `governance_canonical` for an evolving shared component. Read the complete operating guide with `governance_howto(slug='good-code-canonical-release')`.
+
+Canonical releases support source mode, compiled-library/artifact mode, or both. Pin an immutable release and digest; never build `latest`. The component owner authors, the Enterprise Architect acts as Good Code Custodian and assembles exact-byte estate CodeGraph plus Central Compiler evidence, a different steward publishes, and each consumer compiles its committed lock before lifecycle-aware deployment. EA invokes the registered Central Compiler target; no agent compiles locally or supplies an ad-hoc command.
